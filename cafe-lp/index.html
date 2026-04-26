@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kōhaku Coffee — Specialty Coffee & Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Noto+Sans+JP:wght@200;300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --cream: #F5F0E8;
+      --dark-brown: #2C1A0E;
+      --terracotta: #C4704F;
+      --white: #ffffff;
+      --brown-mid: #6B3F24;
+      --cream-dark: #E8E0D0;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background: var(--cream);
+      color: var(--dark-brown);
+      cursor: none;
+      overflow-x: hidden;
+    }
+
+    /* ===== CUSTOM CURSOR ===== */
+    #cursor {
+      position: fixed;
+      width: 12px;
+      height: 12px;
+      background: var(--dark-brown);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width 0.25s ease, height 0.25s ease, background 0.25s ease, opacity 0.25s ease;
+      mix-blend-mode: multiply;
+    }
+    #cursor.hover {
+      width: 36px;
+      height: 36px;
+      background: var(--terracotta);
+      opacity: 0.7;
+    }
+    #cursor-ring {
+      position: fixed;
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(44,26,14,0.3);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: all 0.1s ease;
+    }
+
+    /* ===== SPLASH ===== */
+    #splash {
+      position: fixed;
+      inset: 0;
+      background: var(--dark-brown);
+      z-index: 9990;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 24px;
+    }
+    #splash.fade-out {
+      animation: splashFadeOut 1s ease forwards;
+    }
+    @keyframes splashFadeOut {
+      to { opacity: 0; pointer-events: none; }
+    }
+    .splash-cup {
+      opacity: 0;
+      animation: cupAppear 2s ease 0.3s forwards;
+    }
+    @keyframes cupAppear {
+      0% { opacity: 0; transform: translateY(20px) scale(0.9); }
+      50% { opacity: 1; transform: translateY(0) scale(1); }
+      80% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-10px) scale(1.05); }
+    }
+    .splash-cup svg {
+      width: 80px;
+      height: 80px;
+      fill: none;
+      stroke: var(--cream);
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .splash-title {
+      font-family: 'DM Serif Display', serif;
+      color: var(--cream);
+      font-size: clamp(1.2rem, 3vw, 2rem);
+      letter-spacing: 0.3em;
+      opacity: 0;
+      animation: splashTitleIn 1s ease 1.2s forwards;
+    }
+    @keyframes splashTitleIn {
+      from { opacity: 0; letter-spacing: 0.8em; }
+      to { opacity: 1; letter-spacing: 0.3em; }
+    }
+    .steam-line {
+      stroke-dasharray: 30;
+      stroke-dashoffset: 30;
+      animation: steamDraw 1s ease 0.6s forwards;
+    }
+    @keyframes steamDraw {
+      to { stroke-dashoffset: 0; }
+    }
+
+    /* ===== HERO ===== */
+    #hero {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: -10%;
+      background: radial-gradient(ellipse at 30% 60%, rgba(196,112,79,0.15) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 20%, rgba(44,26,14,0.08) 0%, transparent 50%),
+                  var(--cream);
+      will-change: transform;
+    }
+    .hero-grain {
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 0 24px;
+    }
+    .hero-eyebrow {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: clamp(0.8rem, 1.5vw, 1rem);
+      letter-spacing: 0.25em;
+      color: var(--terracotta);
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: fadeUp 1s ease 0.5s forwards;
+    }
+    .hero-main {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(3rem, 8vw, 7rem);
+      line-height: 1.15;
+      color: var(--dark-brown);
+      margin-bottom: 20px;
+    }
+    .hero-morph-wrap {
+      display: inline-block;
+      position: relative;
+      min-width: 5em;
+    }
+    .morph-word {
+      display: inline-block;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      opacity: 0;
+      filter: blur(8px);
+      color: var(--terracotta);
+      transition: none;
+    }
+    .morph-word.active {
+      animation: wordMorphIn 0.8s ease forwards;
+    }
+    .morph-word.exit {
+      animation: wordMorphOut 0.8s ease forwards;
+    }
+    @keyframes wordMorphIn {
+      from { opacity: 0; filter: blur(16px); transform: translateX(-50%) scale(0.85); }
+      to { opacity: 1; filter: blur(0); transform: translateX(-50%) scale(1); }
+    }
+    @keyframes wordMorphOut {
+      from { opacity: 1; filter: blur(0); transform: translateX(-50%) scale(1); }
+      to { opacity: 0; filter: blur(12px); transform: translateX(-50%) scale(1.1); }
+    }
+    .hero-sub {
+      font-size: clamp(0.85rem, 1.8vw, 1.05rem);
+      font-weight: 300;
+      color: var(--brown-mid);
+      letter-spacing: 0.12em;
+      line-height: 2;
+      margin-top: 32px;
+      opacity: 0;
+      animation: fadeUp 1s ease 1s forwards;
+    }
+    .hero-cta {
+      display: inline-block;
+      margin-top: 48px;
+      padding: 16px 40px;
+      border: 1.5px solid var(--dark-brown);
+      color: var(--dark-brown);
+      text-decoration: none;
+      font-size: 0.85rem;
+      letter-spacing: 0.2em;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 1s ease 1.3s forwards, pulse 3s ease 2.5s infinite;
+      opacity: 0;
+      transition: color 0.4s ease;
+    }
+    .hero-cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--dark-brown);
+      transform: translateX(-101%);
+      transition: transform 0.4s ease;
+    }
+    .hero-cta:hover::before { transform: translateX(0); }
+    .hero-cta:hover { color: var(--cream); }
+    .hero-cta span { position: relative; z-index: 1; }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(44,26,14,0); }
+      50% { box-shadow: 0 0 0 10px rgba(44,26,14,0.08); }
+    }
+    .hero-scroll-hint {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      animation: fadeUp 1s ease 2s forwards;
+    }
+    .hero-scroll-hint span {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      color: var(--brown-mid);
+    }
+    .scroll-line {
+      width: 1px;
+      height: 50px;
+      background: linear-gradient(to bottom, var(--terracotta), transparent);
+      animation: scrollPulse 2s ease infinite;
+    }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 1; transform: scaleY(1); transform-origin: top; }
+      50% { opacity: 0.4; }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== MARQUEE ===== */
+    .marquee-section {
+      background: var(--dark-brown);
+      padding: 20px 0;
+      overflow: hidden;
+      position: relative;
+    }
+    .marquee-track {
+      display: flex;
+      gap: 0;
+      width: max-content;
+      animation: marqueeScroll 25s linear infinite;
+    }
+    .marquee-track:hover { animation-play-state: paused; }
+    @keyframes marqueeScroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    .marquee-item {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      color: var(--cream);
+      font-size: clamp(0.9rem, 2vw, 1.2rem);
+      letter-spacing: 0.15em;
+      white-space: nowrap;
+      padding: 0 32px;
+    }
+    .marquee-dot {
+      color: var(--terracotta);
+      font-style: normal;
+    }
+
+    /* ===== CONCEPT ===== */
+    #concept {
+      padding: 120px 5vw;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .section-label {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 0.8rem;
+      letter-spacing: 0.3em;
+      color: var(--terracotta);
+      margin-bottom: 16px;
+      display: block;
+    }
+    .section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.3;
+      margin-bottom: 80px;
+      color: var(--dark-brown);
+    }
+    .concept-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 60px;
+    }
+    .concept-card {
+      opacity: 0;
+      filter: blur(12px);
+      transform: translateY(40px);
+      transition: opacity 1.2s ease, filter 1.2s ease, transform 1.2s ease;
+    }
+    .concept-card.visible {
+      opacity: 1;
+      filter: blur(0);
+      transform: translateY(0);
+    }
+    .concept-card:nth-child(2) { transition-delay: 0.2s; }
+    .concept-card:nth-child(3) { transition-delay: 0.4s; }
+    .concept-number {
+      font-family: 'DM Serif Display', serif;
+      font-size: 5rem;
+      line-height: 1;
+      color: var(--cream-dark);
+      margin-bottom: -16px;
+    }
+    .concept-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.6rem;
+      color: var(--dark-brown);
+      margin-bottom: 16px;
+    }
+    .concept-name-jp {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      color: var(--terracotta);
+      margin-bottom: 20px;
+      display: block;
+    }
+    .concept-text {
+      font-size: 0.9rem;
+      font-weight: 300;
+      line-height: 2;
+      color: var(--brown-mid);
+    }
+    .concept-line {
+      width: 32px;
+      height: 1px;
+      background: var(--terracotta);
+      margin: 20px 0;
+    }
+
+    /* ===== MENU HORIZONTAL SCROLL ===== */
+    #menu {
+      padding: 120px 0;
+      overflow: hidden;
+    }
+    .menu-header {
+      padding: 0 5vw;
+      margin-bottom: 60px;
+    }
+    .menu-scroll-container {
+      overflow-x: auto;
+      overflow-y: visible;
+      cursor: grab;
+      padding: 20px 5vw 40px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .menu-scroll-container::-webkit-scrollbar { display: none; }
+    .menu-scroll-container:active { cursor: grabbing; }
+    .menu-track {
+      display: flex;
+      gap: 24px;
+      width: max-content;
+    }
+    .menu-card {
+      width: 300px;
+      flex-shrink: 0;
+      background: var(--white);
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+    .menu-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 60px rgba(44,26,14,0.12);
+    }
+    .menu-card-img {
+      height: 220px;
+      background: var(--cream-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .menu-card-img svg {
+      width: 70px;
+      height: 70px;
+      opacity: 0.3;
+    }
+    .menu-card-img::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 50%, rgba(44,26,14,0.08) 100%);
+    }
+    .ripple-container {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(196,112,79,0.2);
+      transform: scale(0);
+      animation: rippleAnim 0.8s ease-out forwards;
+      pointer-events: none;
+    }
+    @keyframes rippleAnim {
+      to { transform: scale(4); opacity: 0; }
+    }
+    .menu-card-body {
+      padding: 24px;
+    }
+    .menu-card-tag {
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      color: var(--terracotta);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .menu-card-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.3rem;
+      color: var(--dark-brown);
+      margin-bottom: 8px;
+    }
+    .menu-card-desc {
+      font-size: 0.8rem;
+      font-weight: 300;
+      color: var(--brown-mid);
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+    .menu-card-price {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.1rem;
+      color: var(--dark-brown);
+    }
+
+    /* bg tints per card */
+    .menu-card:nth-child(1) .menu-card-img { background: #EDE5D8; }
+    .menu-card:nth-child(2) .menu-card-img { background: #DDD5C8; }
+    .menu-card:nth-child(3) .menu-card-img { background: #E5DDD0; }
+    .menu-card:nth-child(4) .menu-card-img { background: #D8D0C4; }
+    .menu-card:nth-child(5) .menu-card-img { background: #E2DAD0; }
+
+    /* ===== STATS ===== */
+    #stats {
+      background: var(--dark-brown);
+      padding: 100px 5vw;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 60px;
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .stat-item {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .stat-item.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .stat-item:nth-child(2) { transition-delay: 0.15s; }
+    .stat-item:nth-child(3) { transition-delay: 0.3s; }
+    .stat-item:nth-child(4) { transition-delay: 0.45s; }
+    .stat-number {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(3rem, 6vw, 5rem);
+      color: var(--cream);
+      line-height: 1;
+      display: block;
+    }
+    .stat-suffix {
+      color: var(--terracotta);
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      color: rgba(245,240,232,0.5);
+      margin-top: 12px;
+      display: block;
+    }
+    .stat-line {
+      width: 24px;
+      height: 1px;
+      background: var(--terracotta);
+      margin: 16px auto;
+    }
+
+    /* ===== WORKSPACE ===== */
+    #workspace {
+      padding: 120px 5vw;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .workspace-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    @media (max-width: 768px) {
+      .workspace-inner { grid-template-columns: 1fr; }
+    }
+    .workspace-visual {
+      aspect-ratio: 4/5;
+      background: linear-gradient(135deg, var(--cream-dark) 0%, #D5C9B8 100%);
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateX(-40px);
+      transition: opacity 1s ease, transform 1s ease;
+    }
+    .workspace-visual.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .workspace-visual svg {
+      width: 120px;
+      height: 120px;
+      opacity: 0.2;
+    }
+    .workspace-visual-label {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 0.8rem;
+      letter-spacing: 0.2em;
+      color: var(--brown-mid);
+    }
+    .workspace-content {
+      opacity: 0;
+      transform: translateX(40px);
+      transition: opacity 1s ease 0.2s, transform 1s ease 0.2s;
+    }
+    .workspace-content.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .workspace-features {
+      list-style: none;
+      margin-top: 40px;
+    }
+    .workspace-features li {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 0.9rem;
+      font-weight: 300;
+      color: var(--brown-mid);
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(44,26,14,0.08);
+      line-height: 1.6;
+    }
+    .feature-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--terracotta);
+      flex-shrink: 0;
+    }
+
+    /* ===== ACCESS ===== */
+    #access {
+      background: var(--cream-dark);
+      padding: 100px 5vw;
+    }
+    .access-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+    }
+    @media (max-width: 700px) {
+      .access-inner { grid-template-columns: 1fr; }
+    }
+    .access-block h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.2rem;
+      color: var(--dark-brown);
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(44,26,14,0.15);
+    }
+    .access-block p, .access-block address {
+      font-size: 0.9rem;
+      font-weight: 300;
+      color: var(--brown-mid);
+      line-height: 2.2;
+      font-style: normal;
+    }
+    .access-block a {
+      color: var(--terracotta);
+      text-decoration: none;
+    }
+    .hours-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 300;
+      color: var(--brown-mid);
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(44,26,14,0.06);
+    }
+    .hours-row .day { color: var(--dark-brown); font-weight: 400; }
+    .hours-closed { color: var(--terracotta) !important; }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: var(--dark-brown);
+      padding: 60px 5vw 40px;
+      text-align: center;
+    }
+    .footer-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.8rem;
+      color: var(--cream);
+      letter-spacing: 0.15em;
+      margin-bottom: 8px;
+    }
+    .footer-tagline {
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      color: rgba(245,240,232,0.4);
+      margin-bottom: 40px;
+    }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+    .footer-links a {
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      color: rgba(245,240,232,0.5);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    .footer-links a:hover { color: var(--terracotta); }
+    .footer-copy {
+      font-size: 0.7rem;
+      color: rgba(245,240,232,0.2);
+      letter-spacing: 0.1em;
+    }
+    .footer-divider {
+      width: 40px;
+      height: 1px;
+      background: rgba(245,240,232,0.15);
+      margin: 32px auto;
+    }
+
+    /* ===== SCROLL REVEAL UTILITY ===== */
+    .reveal {
+      opacity: 0;
+      filter: blur(8px);
+      transform: translateY(30px);
+      transition: opacity 1s ease, filter 1s ease, transform 1s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      filter: blur(0);
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CURSOR -->
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- SPLASH -->
+  <div id="splash">
+    <div class="splash-cup">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <!-- Steam -->
+        <path class="steam-line" d="M38,28 Q35,20 38,12" stroke="#F5F0E8" fill="none"/>
+        <path class="steam-line" d="M50,26 Q47,16 50,8" stroke="#F5F0E8" fill="none" style="animation-delay:0.2s"/>
+        <path class="steam-line" d="M62,28 Q59,20 62,12" stroke="#F5F0E8" fill="none" style="animation-delay:0.4s"/>
+        <!-- Cup body -->
+        <path d="M25,35 L30,75 Q30,80 38,80 L62,80 Q70,80 70,75 L75,35 Z" stroke="#F5F0E8" fill="none"/>
+        <!-- Saucer -->
+        <ellipse cx="50" cy="83" rx="28" ry="5" stroke="#F5F0E8" fill="none"/>
+        <!-- Handle -->
+        <path d="M70,45 Q88,45 88,58 Q88,68 70,68" stroke="#F5F0E8" fill="none"/>
+        <!-- Liquid surface -->
+        <path d="M30,42 Q50,38 70,42" stroke="rgba(245,240,232,0.4)" fill="none"/>
+      </svg>
+    </div>
+    <div class="splash-title">KŌHAKU COFFEE</div>
+  </div>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg" id="heroBg"></div>
+    <div class="hero-grain"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">specialty coffee &amp; workspace · since 2019</p>
+      <h1 class="hero-main">
+        一杯の中に、<br>
+        <span class="hero-morph-wrap" id="morphContainer">
+          <span class="morph-word" data-word="0">静けさ</span>
+          <span class="morph-word" data-word="1">ぬくもり</span>
+          <span class="morph-word" data-word="2">発　見</span>
+          <span class="morph-word" data-word="3">余　白</span>
+        </span>
+        <span style="visibility:hidden">静けさ</span>
+        がある。
+      </h1>
+      <p class="hero-sub">
+        丁寧に選んだ豆、ゆっくり流れる時間。<br>
+        あなただけの「場所」がここにある。
+      </p>
+      <a href="#menu" class="hero-cta"><span>EXPLORE MENU →</span></a>
+    </div>
+    <div class="hero-scroll-hint">
+      <span>SCROLL</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-section">
+    <div class="marquee-track" id="marqueeTrack">
+      <span class="marquee-item">COFFEE <span class="marquee-dot">×</span></span>
+      <span class="marquee-item">MOMENT <span class="marquee-dot">×</span></span>
+      <span class="marquee-item">SLOW <span class="marquee-dot">×</span></span>
+      <span class="marquee-item">LIFE <span class="marquee-dot">×</span></span>
+      <span class="marquee-item">COFFEE <span class="marquee-dot">×</span></span>
+      <span class="marquee-item">MOMENT <span class="marquee-dot">×</span></span>
+      <span class="marquee-item">SLOW <span class="marquee-dot">×</span></span>
+      <span class="marquee-item">LIFE <span class="marquee-dot">×</span></span>
+      <!-- duplicate for seamless -->
+      <span class="marquee-item">COFFEE <span class="marquee-dot">×</span></span>
+      <span class="marquee-item">MOMENT <span class="marquee-dot">×</span></span>
+      <span class="marquee-item">SLOW <span class="marquee-dot">×</span></span>
+      <span class="marquee-item">LIFE <span class="marquee-dot">×</span></span>
+      <span class="marquee-item">COFFEE <span class="marquee-dot">×</span></span>
+      <span class="marquee-item">MOMENT <span class="marquee-dot">×</span></span>
+      <span class="marquee-item">SLOW <span class="marquee-dot">×</span></span>
+      <span class="marquee-item">LIFE <span class="marquee-dot">×</span></span>
+    </div>
+  </div>
+
+  <!-- CONCEPT -->
+  <section id="concept">
+    <span class="section-label">Our Philosophy</span>
+    <h2 class="section-title reveal">
+      コーヒーは、<br>哲学だ。
+    </h2>
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="concept-number">01</div>
+        <h3 class="concept-name">Origin</h3>
+        <span class="concept-name-jp">産地への誠実さ</span>
+        <div class="concept-line"></div>
+        <p class="concept-text">エチオピア、コロンビア、ケニア。それぞれの土地の物語が、一杯のコーヒーに凝縮されている。生産者と直接繋がり、その誠実さをカップに込める。</p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-number">02</div>
+        <h3 class="concept-name">Craft</h3>
+        <span class="concept-name-jp">焙煎という技芸</span>
+        <div class="concept-line"></div>
+        <p class="concept-text">豆の個性を最大限に引き出すため、毎日少量ずつ焙煎する。温度、時間、香り——五感を研ぎ澄ませた繊細なプロセスがここにある。</p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-number">03</div>
+        <h3 class="concept-name">Space</h3>
+        <span class="concept-name-jp">場としての余白</span>
+        <div class="concept-line"></div>
+        <p class="concept-text">何もしない時間の豊かさを知っている。ここは思索のための場所。ラップトップを開いても、ただ窓の外を眺めるだけでもいい。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MENU HORIZONTAL SCROLL -->
+  <section id="menu">
+    <div class="menu-header">
+      <span class="section-label reveal">Our Menu</span>
+      <h2 class="section-title reveal" style="margin-bottom:0">丁寧に、一杯ずつ。</h2>
+    </div>
+    <div class="menu-scroll-container" id="menuScroll">
+      <div class="menu-track">
+
+        <div class="menu-card">
+          <div class="menu-card-img">
+            <div class="ripple-container"></div>
+            <svg viewBox="0 0 60 60" fill="none" stroke="#2C1A0E" stroke-width="1.2" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15,20 L18,48 Q18,52 24,52 L36,52 Q42,52 42,48 L45,20 Z"/>
+              <path d="M42,28 Q52,28 52,36 Q52,44 42,44"/>
+              <ellipse cx="30" cy="54" rx="16" ry="3"/>
+              <path d="M24,14 Q22,8 24,4"/>
+              <path d="M30,13 Q28,6 30,2"/>
+              <path d="M36,14 Q34,8 36,4"/>
+            </svg>
+          </div>
+          <div class="menu-card-body">
+            <span class="menu-card-tag">Signature</span>
+            <h3 class="menu-card-name">Kōhaku Blend</h3>
+            <p class="menu-card-desc">エチオピア×コロンビアのブレンド。柑橘のような明るい酸味と、ほのかなチョコレートの余韻。</p>
+            <span class="menu-card-price">¥680</span>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <div class="menu-card-img">
+            <div class="ripple-container"></div>
+            <svg viewBox="0 0 60 60" fill="none" stroke="#2C1A0E" stroke-width="1.2" xmlns="http://www.w3.org/2000/svg">
+              <rect x="12" y="18" width="36" height="30" rx="2"/>
+              <path d="M12,26 L48,26"/>
+              <path d="M24,18 L24,14 Q24,10 30,10 Q36,10 36,14 L36,18"/>
+              <circle cx="30" cy="36" r="5"/>
+            </svg>
+          </div>
+          <div class="menu-card-body">
+            <span class="menu-card-tag">Espresso</span>
+            <h3 class="menu-card-name">Double Ristretto</h3>
+            <p class="menu-card-desc">18gの豆から25mlのみを抽出。濃密な甘みとトロリとしたテクスチャが口に広がる。</p>
+            <span class="menu-card-price">¥520</span>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <div class="menu-card-img">
+            <div class="ripple-container"></div>
+            <svg viewBox="0 0 60 60" fill="none" stroke="#2C1A0E" stroke-width="1.2" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18,20 L20,50 Q20,54 30,54 Q40,54 40,50 L42,20 Z"/>
+              <path d="M22,20 Q30,16 38,20"/>
+              <path d="M42,30 Q50,30 50,38 Q50,45 42,45"/>
+              <path d="M24,34 Q30,38 36,34"/>
+              <path d="M25,40 Q30,44 35,40"/>
+            </svg>
+          </div>
+          <div class="menu-card-body">
+            <span class="menu-card-tag">Latte</span>
+            <h3 class="menu-card-name">Oat Milk Latte</h3>
+            <p class="menu-card-desc">燕麦の自然な甘みがエスプレッソを優しく包む。ラテアートはその日のバリスタの気分で。</p>
+            <span class="menu-card-price">¥780</span>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <div class="menu-card-img">
+            <div class="ripple-container"></div>
+            <svg viewBox="0 0 60 60" fill="none" stroke="#2C1A0E" stroke-width="1.2" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20,15 L22,45 Q22,50 30,50 Q38,50 38,45 L40,15 Z"/>
+              <path d="M25,15 C25,8 35,8 35,15"/>
+              <path d="M20,25 L40,25"/>
+              <path d="M21,35 L39,35"/>
+              <circle cx="30" cy="55" r="2"/>
+            </svg>
+          </div>
+          <div class="menu-card-body">
+            <span class="menu-card-tag">Filter</span>
+            <h3 class="menu-card-name">Kenya AA Pour Over</h3>
+            <p class="menu-card-desc">ケニア産シングルオリジン。ブラックカラントのような果実味と、クリーンな後味が特徴。</p>
+            <span class="menu-card-price">¥900</span>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <div class="menu-card-img">
+            <div class="ripple-container"></div>
+            <svg viewBox="0 0 60 60" fill="none" stroke="#2C1A0E" stroke-width="1.2" xmlns="http://www.w3.org/2000/svg">
+              <rect x="14" y="22" width="32" height="28" rx="3"/>
+              <path d="M22,22 L22,18 Q22,12 30,12 Q38,12 38,18 L38,22"/>
+              <path d="M20,34 L40,34"/>
+              <circle cx="30" cy="28" r="2"/>
+              <path d="M25,42 L35,42"/>
+            </svg>
+          </div>
+          <div class="menu-card-body">
+            <span class="menu-card-tag">Season</span>
+            <h3 class="menu-card-name">Cold Brew Tonic</h3>
+            <p class="menu-card-desc">12時間水出しのコールドブリューとトニックウォーターの組み合わせ。透明感ある苦味と炭酸が踊る。</p>
+            <span class="menu-card-price">¥820</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section id="stats">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <span class="stat-number"><span class="count" data-target="12">0</span><span class="stat-suffix">+</span></span>
+        <div class="stat-line"></div>
+        <span class="stat-label">ORIGIN COUNTRIES<br>豆の産地数</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number"><span class="count" data-target="6">0</span><span class="stat-suffix">年</span></span>
+        <div class="stat-line"></div>
+        <span class="stat-label">ROASTING HISTORY<br>自家焙煎の歴史</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number"><span class="count" data-target="38">0</span><span class="stat-suffix">席</span></span>
+        <div class="stat-line"></div>
+        <span class="stat-label">WORKSPACE SEATS<br>ワークスペース席数</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number"><span class="count" data-target="99">0</span><span class="stat-suffix">%</span></span>
+        <div class="stat-line"></div>
+        <span class="stat-label">FAIR TRADE SOURCED<br>フェアトレード比率</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORKSPACE -->
+  <section id="workspace">
+    <div class="workspace-inner">
+      <div class="workspace-visual" id="workspaceVisual">
+        <svg viewBox="0 0 100 100" fill="none" stroke="#2C1A0E" stroke-width="1" xmlns="http://www.w3.org/2000/svg">
+          <rect x="15" y="55" width="70" height="5" rx="2"/>
+          <rect x="20" y="35" width="60" height="20" rx="2"/>
+          <line x1="30" y1="60" x2="30" y2="80"/>
+          <line x1="70" y1="60" x2="70" y2="80"/>
+          <rect x="35" y="38" width="30" height="14" rx="1"/>
+          <circle cx="70" cy="42" r="3"/>
+        </svg>
+        <span class="workspace-visual-label">Work &amp; Stay</span>
+      </div>
+      <div class="workspace-content" id="workspaceContent">
+        <span class="section-label">Workspace</span>
+        <h2 class="section-title" style="margin-bottom:16px">集中と、<br>余白のあいだ。</h2>
+        <p style="font-size:0.9rem; font-weight:300; color:var(--brown-mid); line-height:2.2; margin-bottom:32px">
+          ここは「カフェで仕事をする」ための場所ではなく、「思考がひらかれる場所」です。高速Wi-Fi、電源、静かな音楽——あとは、あなた自身の時間だけ。
+        </p>
+        <ul class="workspace-features">
+          <li><span class="feature-dot"></span>全席電源完備 / 高速 Wi-Fi（1Gbps）</li>
+          <li><span class="feature-dot"></span>月額パスポート制ドロップイン — ¥8,000/月</li>
+          <li><span class="feature-dot"></span>防音個室ブース 2 室（要予約・2時間 ¥1,200〜）</li>
+          <li><span class="feature-dot"></span>プリンター・スキャナー無料利用</li>
+          <li><span class="feature-dot"></span>ドリンク1杯につき2時間利用保証</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACCESS -->
+  <section id="access">
+    <div class="access-inner">
+      <div class="access-block reveal">
+        <h3>Access</h3>
+        <address>
+          〒150-0001<br>
+          東京都渋谷区神宮前 3-12-5<br>
+          コウハクビル 1F<br><br>
+          <a href="#">Google Maps で開く →</a>
+        </address>
+        <br>
+        <p style="font-size:0.8rem; font-weight:300; color:var(--brown-mid)">
+          東京メトロ銀座線「外苑前」駅<br>
+          3番出口より徒歩 5分
+        </p>
+      </div>
+      <div class="access-block reveal" style="transition-delay:0.2s">
+        <h3>Hours</h3>
+        <div class="hours-row"><span class="day">月・火・水・木</span><span>08:00 – 22:00</span></div>
+        <div class="hours-row"><span class="day">金</span><span>08:00 – 23:00</span></div>
+        <div class="hours-row"><span class="day">土</span><span>09:00 – 23:00</span></div>
+        <div class="hours-row"><span class="day">日</span><span>09:00 – 21:00</span></div>
+        <div class="hours-row"><span class="day">祝日</span><span class="hours-closed">不定休</span></div>
+        <p style="font-size:0.75rem; font-weight:300; color:rgba(44,26,14,0.4); margin-top:20px; line-height:2">
+          ※ラストオーダーは閉店30分前<br>
+          ※ワークスペースは平日限定でモーニング割引あり
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">KŌHAKU</div>
+    <p class="footer-tagline">COFFEE × WORKSPACE × SLOW LIFE</p>
+    <div class="footer-divider"></div>
+    <nav class="footer-links">
+      <a href="#concept">Philosophy</a>
+      <a href="#menu">Menu</a>
+      <a href="#workspace">Workspace</a>
+      <a href="#access">Access</a>
+      <a href="#">Instagram</a>
+      <a href="#">Online Shop</a>
+    </nav>
+    <p class="footer-copy">&copy; 2026 Kōhaku Coffee. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // ===== CUSTOM CURSOR =====
+    const cursor = document.getElementById('cursor');
+    const cursorRing = document.getElementById('cursor-ring');
+    let mouseX = 0, mouseY = 0;
+    let ringX = 0, ringY = 0;
+
+    document.addEventListener('mousemove', e => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      cursor.style.left = mouseX + 'px';
+      cursor.style.top = mouseY + 'px';
+    });
+
+    function animateRing() {
+      ringX += (mouseX - ringX) * 0.12;
+      ringY += (mouseY - ringY) * 0.12;
+      cursorRing.style.left = ringX + 'px';
+      cursorRing.style.top = ringY + 'px';
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    document.querySelectorAll('a, button, .menu-card, .concept-card').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+    });
+
+    // ===== SPLASH =====
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const splash = document.getElementById('splash');
+        splash.classList.add('fade-out');
+        setTimeout(() => {
+          splash.style.display = 'none';
+          startMorph();
+        }, 1000);
+      }, 2800);
+    });
+
+    // ===== HERO MORPH =====
+    const words = document.querySelectorAll('.morph-word');
+    let currentWord = 0;
+
+    function startMorph() {
+      words[0].classList.add('active');
+      setInterval(nextWord, 2400);
+    }
+
+    function nextWord() {
+      words[currentWord].classList.remove('active');
+      words[currentWord].classList.add('exit');
+      const exitIndex = currentWord;
+      setTimeout(() => words[exitIndex].classList.remove('exit'), 800);
+      currentWord = (currentWord + 1) % words.length;
+      setTimeout(() => words[currentWord].classList.add('active'), 400);
+    }
+
+    // ===== PARALLAX =====
+    const heroBg = document.getElementById('heroBg');
+    window.addEventListener('scroll', () => {
+      const scrolled = window.scrollY;
+      heroBg.style.transform = `translateY(${scrolled * 0.4}px)`;
+    }, { passive: true });
+
+    // ===== SCROLL REVEAL =====
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.reveal, .concept-card, .stat-item').forEach(el => {
+      revealObserver.observe(el);
+    });
+
+    // Workspace reveal
+    const workspaceObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          document.getElementById('workspaceVisual').classList.add('visible');
+          document.getElementById('workspaceContent').classList.add('visible');
+        }
+      });
+    }, { threshold: 0.2 });
+    workspaceObserver.observe(document.getElementById('workspace'));
+
+    // ===== COUNTUP =====
+    const countObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.querySelectorAll('.count').forEach(el => {
+            animateCount(el);
+          });
+          countObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    countObserver.observe(document.getElementById('stats'));
+
+    function animateCount(el) {
+      const target = parseInt(el.dataset.target);
+      const duration = 1800;
+      const start = performance.now();
+      function update(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(ease * target);
+        if (progress < 1) requestAnimationFrame(update);
+        else el.textContent = target;
+      }
+      requestAnimationFrame(update);
+    }
+
+    // ===== HORIZONTAL SCROLL DRAG =====
+    const menuScroll = document.getElementById('menuScroll');
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    menuScroll.addEventListener('mousedown', e => {
+      isDown = true;
+      startX = e.pageX - menuScroll.offsetLeft;
+      scrollLeft = menuScroll.scrollLeft;
+    });
+    menuScroll.addEventListener('mouseleave', () => isDown = false);
+    menuScroll.addEventListener('mouseup', () => isDown = false);
+    menuScroll.addEventListener('mousemove', e => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - menuScroll.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      menuScroll.scrollLeft = scrollLeft - walk;
+    });
+
+    // ===== RIPPLE ON MENU CARDS =====
+    document.querySelectorAll('.menu-card').forEach(card => {
+      card.addEventListener('mouseenter', e => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const container = card.querySelector('.ripple-container');
+        const ripple = document.createElement('div');
+        ripple.className = 'ripple';
+        ripple.style.cssText = `
+          left: ${x}px;
+          top: ${y}px;
+          width: 60px;
+          height: 60px;
+          margin-left: -30px;
+          margin-top: -30px;
+        `;
+        container.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 800);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>麺屋 BUTA SOUL | 二郎系ラーメン 高田馬場</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ===========================
+       RESET & BASE
+    =========================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    :root {
+      --red:    #CC0000;
+      --red-d:  #990000;
+      --yellow: #FFC80F;
+      --black:  #0a0a0a;
+      --black2: #111111;
+      --black3: #1a1a1a;
+      --white:  #ffffff;
+      --gray:   #888888;
+      --bebas:  'Bebas Neue', cursive;
+      --noto:   'Noto Sans JP', sans-serif;
+    }
+    html { scroll-behavior: smooth; cursor: none; }
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--noto);
+      line-height: 1.7;
+      overflow-x: hidden;
+      cursor: none;
+    }
+    a { color: inherit; text-decoration: none; cursor: none; }
+    img { display: block; max-width: 100%; }
+
+    /* ===========================
+       CUSTOM CURSOR (赤い十字)
+    =========================== */
+    #cursor {
+      position: fixed;
+      top: 0; left: 0;
+      width: 28px; height: 28px;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.05s linear;
+    }
+    #cursor::before,
+    #cursor::after {
+      content: '';
+      position: absolute;
+      background: var(--red);
+      border-radius: 2px;
+    }
+    /* 横棒 */
+    #cursor::before {
+      top: 50%; left: 0;
+      width: 100%; height: 3px;
+      transform: translateY(-50%);
+    }
+    /* 縦棒 */
+    #cursor::after {
+      left: 50%; top: 0;
+      width: 3px; height: 100%;
+      transform: translateX(-50%);
+    }
+    #cursor-dot {
+      position: fixed;
+      top: 0; left: 0;
+      width: 6px; height: 6px;
+      background: var(--yellow);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 100000;
+      transform: translate(-50%, -50%);
+      transition: transform 0.03s linear;
+    }
+
+    /* ===========================
+       SPLASH SCREEN
+    =========================== */
+    #splash {
+      position: fixed;
+      inset: 0;
+      background: var(--black);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.9s ease, visibility 0.9s ease;
+    }
+    #splash.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    .splash-kanji {
+      font-family: var(--noto);
+      font-weight: 900;
+      font-size: clamp(8rem, 25vw, 18rem);
+      color: var(--white);
+      line-height: 1;
+      opacity: 0;
+      transform: scale(3) rotate(-5deg);
+      animation: splashDrop 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s forwards;
+      position: relative;
+    }
+    .splash-kanji::after {
+      content: '麺';
+      position: absolute;
+      inset: 0;
+      color: var(--red);
+      opacity: 0;
+      animation: splashGlitch 0.8s ease 0.5s forwards;
+    }
+    .splash-bar {
+      width: 0;
+      height: 4px;
+      background: var(--red);
+      margin-top: 32px;
+      animation: splashBar 1.2s ease 0.6s forwards;
+    }
+    .splash-sub {
+      font-family: var(--bebas);
+      font-size: 1.4rem;
+      letter-spacing: 0.35em;
+      color: var(--yellow);
+      margin-top: 20px;
+      opacity: 0;
+      animation: splashFade 0.6s ease 1.0s forwards;
+    }
+
+    @keyframes splashDrop {
+      from { opacity: 0; transform: scale(3) rotate(-5deg); }
+      to   { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+    @keyframes splashGlitch {
+      0%   { opacity: 0; transform: translate(0,0); }
+      20%  { opacity: 0.8; transform: translate(-8px, 3px); }
+      40%  { opacity: 0.6; transform: translate(6px, -4px); }
+      60%  { opacity: 0.9; transform: translate(-4px, 2px); }
+      80%  { opacity: 0.4; transform: translate(3px, -2px); }
+      100% { opacity: 0; transform: translate(0,0); }
+    }
+    @keyframes splashBar {
+      from { width: 0; }
+      to   { width: 220px; }
+    }
+    @keyframes splashFade {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===========================
+       HEADER
+    =========================== */
+    #site-header {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      z-index: 500;
+      padding: 20px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.3s, padding 0.3s, box-shadow 0.3s;
+    }
+    #site-header.scrolled {
+      background: rgba(10,10,10,0.96);
+      padding: 12px 48px;
+      box-shadow: 0 2px 24px rgba(204,0,0,0.18);
+      backdrop-filter: blur(8px);
+    }
+    .header-logo {
+      font-family: var(--bebas);
+      font-size: 1.8rem;
+      letter-spacing: 0.1em;
+      color: var(--white);
+    }
+    .header-logo em {
+      font-style: normal;
+      color: var(--red);
+    }
+    .header-nav {
+      display: flex;
+      gap: 40px;
+      list-style: none;
+    }
+    .header-nav a {
+      font-family: var(--bebas);
+      font-size: 1.1rem;
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.7);
+      transition: color 0.2s;
+    }
+    .header-nav a:hover { color: var(--yellow); }
+
+    /* ===========================
+       HERO (Glitch + Parallax)
+    =========================== */
+    #hero {
+      position: relative;
+      height: 100vh;
+      min-height: 640px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .hero-parallax-bg {
+      position: absolute;
+      inset: -15%;
+      background-image: url('https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=1800&q=80');
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.25) saturate(1.4);
+      will-change: transform;
+    }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        160deg,
+        rgba(204,0,0,0.12) 0%,
+        rgba(10,10,10,0.5) 50%,
+        rgba(10,10,10,0.98) 100%
+      );
+    }
+    /* 炎エフェクトのscanline */
+    .hero-scanlines {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0,0,0,0.12) 3px,
+        rgba(0,0,0,0.12) 4px
+      );
+      pointer-events: none;
+      z-index: 1;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 0 24px;
+    }
+    .hero-eyebrow {
+      font-family: var(--bebas);
+      font-size: 1rem;
+      letter-spacing: 0.5em;
+      color: var(--red);
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: heroUp 0.6s ease 0.2s forwards;
+    }
+    .hero-title {
+      font-family: var(--bebas);
+      font-size: clamp(5rem, 14vw, 11rem);
+      line-height: 0.88;
+      letter-spacing: 0.03em;
+      position: relative;
+      opacity: 0;
+      animation: heroUp 0.7s ease 0.4s forwards;
+    }
+    /* グリッチエフェクト */
+    .hero-title .glitch {
+      position: relative;
+      display: inline-block;
+      color: var(--white);
+    }
+    .hero-title .glitch::before,
+    .hero-title .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      clip: rect(0,0,0,0);
+    }
+    .hero-title .glitch::before {
+      color: var(--red);
+      animation: glitch1 4s infinite;
+    }
+    .hero-title .glitch::after {
+      color: var(--yellow);
+      animation: glitch2 4s infinite;
+    }
+    .hero-title .accent {
+      color: var(--red);
+      display: block;
+    }
+    .hero-sub {
+      margin-top: 28px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 0.18em;
+      opacity: 0;
+      animation: heroUp 0.6s ease 0.7s forwards;
+    }
+    .hero-cta-wrap {
+      margin-top: 48px;
+      opacity: 0;
+      animation: heroUp 0.6s ease 0.95s forwards;
+    }
+    .hero-scroll-hint {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--bebas);
+      font-size: 0.9rem;
+      letter-spacing: 0.3em;
+      color: rgba(255,255,255,0.35);
+      opacity: 0;
+      animation: heroUp 0.6s ease 1.3s forwards;
+    }
+    .hero-scroll-line {
+      width: 2px;
+      height: 44px;
+      background: linear-gradient(to bottom, var(--red), transparent);
+      animation: scrollPulse 1.8s ease infinite;
+    }
+    @keyframes scrollPulse {
+      0%   { transform: scaleY(0); transform-origin: top; }
+      50%  { transform: scaleY(1); transform-origin: top; }
+      51%  { transform: scaleY(1); transform-origin: bottom; }
+      100% { transform: scaleY(0); transform-origin: bottom; }
+    }
+
+    @keyframes heroUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes glitch1 {
+      0%, 90%, 100% { clip: rect(0,9999px,0,0); transform: translate(0); }
+      92%  { clip: rect(24px,9999px,52px,0); transform: translate(-4px, 2px); }
+      94%  { clip: rect(72px,9999px,98px,0); transform: translate(4px, -3px); }
+      96%  { clip: rect(12px,9999px,40px,0); transform: translate(-3px, 1px); }
+      98%  { clip: rect(55px,9999px,82px,0); transform: translate(3px, -1px); }
+    }
+    @keyframes glitch2 {
+      0%, 85%, 100% { clip: rect(0,9999px,0,0); transform: translate(0); }
+      87%  { clip: rect(60px,9999px,88px,0); transform: translate(5px, -2px); }
+      89%  { clip: rect(10px,9999px,36px,0); transform: translate(-5px, 3px); }
+      91%  { clip: rect(40px,9999px,65px,0); transform: translate(3px, -1px); }
+    }
+
+    /* ===========================
+       MARQUEE STRIP
+    =========================== */
+    .marquee-strip {
+      background: var(--red);
+      padding: 16px 0;
+      overflow: hidden;
+      position: relative;
+    }
+    .marquee-track {
+      display: flex;
+      width: max-content;
+      animation: marquee 18s linear infinite;
+    }
+    .marquee-track span {
+      font-family: var(--bebas);
+      font-size: 1.4rem;
+      letter-spacing: 0.25em;
+      color: var(--white);
+      padding: 0 28px;
+      white-space: nowrap;
+    }
+    .marquee-track span.sep {
+      color: var(--yellow);
+      padding: 0 8px;
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ===========================
+       SECTION COMMON
+    =========================== */
+    section { padding: 120px 0; }
+    .section-inner {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 48px;
+    }
+    .section-label {
+      font-family: var(--bebas);
+      font-size: 0.85rem;
+      letter-spacing: 0.4em;
+      color: var(--red);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: var(--bebas);
+      font-size: clamp(3rem, 6vw, 5rem);
+      line-height: 1;
+      letter-spacing: 0.04em;
+      color: var(--white);
+    }
+    .section-rule {
+      width: 52px;
+      height: 4px;
+      background: var(--red);
+      margin: 24px 0 0;
+    }
+
+    /* ===========================
+       SLIDE-IN アニメーション
+    =========================== */
+    .slide-in-left {
+      opacity: 0;
+      transform: translateX(-80px);
+      transition: opacity 0.8s cubic-bezier(0.22,1,0.36,1), transform 0.8s cubic-bezier(0.22,1,0.36,1);
+    }
+    .slide-in-right {
+      opacity: 0;
+      transform: translateX(80px);
+      transition: opacity 0.8s cubic-bezier(0.22,1,0.36,1), transform 0.8s cubic-bezier(0.22,1,0.36,1);
+    }
+    .slide-in-up {
+      opacity: 0;
+      transform: translateY(60px);
+      transition: opacity 0.8s cubic-bezier(0.22,1,0.36,1), transform 0.8s cubic-bezier(0.22,1,0.36,1);
+    }
+    .slide-in-left.visible,
+    .slide-in-right.visible,
+    .slide-in-up.visible {
+      opacity: 1;
+      transform: translate(0);
+    }
+
+    /* ===========================
+       こだわり（PHILOSOPHY）
+    =========================== */
+    #philosophy {
+      background: var(--black2);
+      position: relative;
+      overflow: hidden;
+    }
+    #philosophy::before {
+      content: 'SOUL';
+      position: absolute;
+      right: -40px; top: 50%;
+      transform: translateY(-50%) rotate(90deg);
+      font-family: var(--bebas);
+      font-size: 14rem;
+      color: rgba(204,0,0,0.04);
+      letter-spacing: 0.1em;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .philosophy-header { margin-bottom: 80px; }
+    .philosophy-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3px;
+    }
+    .philosophy-card {
+      background: var(--black3);
+      padding: 56px 44px;
+      border-top: 4px solid var(--red);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .philosophy-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(204,0,0,0.06) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .philosophy-card:hover { transform: translateY(-6px); box-shadow: 0 20px 60px rgba(204,0,0,0.2); }
+    .philosophy-card:hover::after { opacity: 1; }
+    .philosophy-num {
+      font-family: var(--bebas);
+      font-size: 5rem;
+      color: var(--red);
+      line-height: 1;
+      margin-bottom: 24px;
+      opacity: 0.8;
+    }
+    .philosophy-ttl {
+      font-size: 1.25rem;
+      font-weight: 900;
+      margin-bottom: 18px;
+      letter-spacing: 0.04em;
+      line-height: 1.4;
+    }
+    .philosophy-txt {
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.9;
+    }
+
+    /* ===========================
+       MENU（3Dチルトカード）
+    =========================== */
+    #menu {
+      background: var(--black);
+      position: relative;
+    }
+    .menu-intro {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 72px;
+    }
+    .menu-note {
+      font-size: 0.8rem;
+      color: var(--gray);
+    }
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+    }
+    .tilt-card {
+      background: var(--black3);
+      position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      transition: box-shadow 0.3s;
+      cursor: none;
+    }
+    .tilt-card:hover {
+      box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 30px rgba(204,0,0,0.15);
+    }
+    .tilt-card .card-shine {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.08) 0%, transparent 65%);
+      pointer-events: none;
+      z-index: 3;
+    }
+    .tilt-card img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+    .tilt-card:hover img { transform: scale(1.06); }
+    .card-body {
+      padding: 28px 32px 36px;
+      position: relative;
+      z-index: 2;
+    }
+    .card-tag {
+      display: inline-block;
+      font-family: var(--bebas);
+      font-size: 0.82rem;
+      letter-spacing: 0.22em;
+      background: var(--red);
+      color: var(--white);
+      padding: 3px 10px;
+      margin-bottom: 14px;
+    }
+    .card-name {
+      font-size: 1.3rem;
+      font-weight: 900;
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+    .card-desc {
+      font-size: 0.83rem;
+      color: rgba(255,255,255,0.48);
+      line-height: 1.85;
+      margin-bottom: 18px;
+    }
+    .card-price {
+      font-family: var(--bebas);
+      font-size: 2.2rem;
+      color: var(--yellow);
+      letter-spacing: 0.04em;
+      line-height: 1;
+    }
+    .card-price small {
+      font-size: 1rem;
+      color: var(--gray);
+      margin-left: 4px;
+    }
+    /* フィーチャーカード */
+    .tilt-card.featured {
+      grid-column: span 3;
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+    }
+    .tilt-card.featured img {
+      height: 100%;
+      min-height: 360px;
+    }
+    .tilt-card.featured .card-body {
+      padding: 52px 56px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .tilt-card.featured .card-name { font-size: 1.9rem; }
+
+    /* ===========================
+       震えるワード
+    =========================== */
+    .shake-word {
+      display: inline-block;
+      animation: shake 0.4s ease infinite;
+    }
+    @keyframes shake {
+      0%,100% { transform: translate(0,0) rotate(0deg); }
+      20%      { transform: translate(-2px, 1px) rotate(-0.5deg); }
+      40%      { transform: translate(2px,-1px) rotate(0.5deg); }
+      60%      { transform: translate(-1px, 2px) rotate(-0.3deg); }
+      80%      { transform: translate(1px,-2px) rotate(0.3deg); }
+    }
+
+    /* ===========================
+       カウントアップ（実績）
+    =========================== */
+    #stats {
+      background: var(--red);
+      padding: 100px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    #stats::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 20px,
+        rgba(0,0,0,0.06) 20px,
+        rgba(0,0,0,0.06) 21px
+      );
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+      position: relative;
+      z-index: 1;
+    }
+    .stat-item {
+      background: rgba(0,0,0,0.25);
+      padding: 52px 40px;
+      text-align: center;
+      border-top: 4px solid rgba(255,255,255,0.15);
+    }
+    .stat-num {
+      font-family: var(--bebas);
+      font-size: clamp(3.5rem, 6vw, 5.5rem);
+      color: var(--white);
+      line-height: 1;
+      display: block;
+    }
+    .stat-unit {
+      font-family: var(--bebas);
+      font-size: 1.5rem;
+      color: var(--yellow);
+    }
+    .stat-label {
+      margin-top: 12px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 0.1em;
+    }
+
+    /* ===========================
+       CTA SECTION（Pulse）
+    =========================== */
+    #cta-section {
+      background: var(--black2);
+      padding: 130px 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    #cta-section::before {
+      content: 'EAT';
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--bebas);
+      font-size: 30vw;
+      color: rgba(204,0,0,0.04);
+      pointer-events: none;
+      white-space: nowrap;
+      letter-spacing: -0.02em;
+    }
+    .cta-eyebrow {
+      font-family: var(--bebas);
+      font-size: 0.9rem;
+      letter-spacing: 0.45em;
+      color: var(--red);
+      margin-bottom: 20px;
+    }
+    .cta-headline {
+      font-family: var(--bebas);
+      font-size: clamp(3.5rem, 8vw, 7rem);
+      line-height: 0.9;
+      margin-bottom: 36px;
+    }
+    .cta-headline .line2 {
+      color: var(--yellow);
+    }
+    .cta-desc {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 52px;
+      letter-spacing: 0.08em;
+    }
+    .btn-pulse {
+      display: inline-block;
+      background: var(--red);
+      color: var(--white);
+      font-family: var(--bebas);
+      font-size: 1.3rem;
+      letter-spacing: 0.2em;
+      padding: 22px 72px;
+      position: relative;
+      animation: pulse 2s ease infinite;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-pulse:hover {
+      background: var(--red-d);
+      transform: scale(1.04);
+      animation: none;
+    }
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(204,0,0,0.7); }
+      70%  { box-shadow: 0 0 0 22px rgba(204,0,0,0); }
+      100% { box-shadow: 0 0 0 0 rgba(204,0,0,0); }
+    }
+
+    /* ===========================
+       INFO（アクセス・営業時間）
+    =========================== */
+    #info {
+      background: var(--black);
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3px;
+      margin-top: 72px;
+    }
+    .info-block {
+      background: var(--black3);
+      padding: 56px 52px;
+    }
+    .info-block-title {
+      font-family: var(--bebas);
+      font-size: 1rem;
+      letter-spacing: 0.35em;
+      color: var(--red);
+      margin-bottom: 32px;
+    }
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .info-table tr {
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .info-table tr:last-child { border-bottom: none; }
+    .info-table th,
+    .info-table td {
+      padding: 16px 0;
+      font-size: 0.9rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    .info-table th {
+      font-weight: 700;
+      color: rgba(255,255,255,0.4);
+      width: 36%;
+      letter-spacing: 0.05em;
+    }
+    .info-table td {
+      color: rgba(255,255,255,0.85);
+      line-height: 1.65;
+    }
+    .badge-closed {
+      display: inline-block;
+      background: rgba(204,0,0,0.2);
+      border: 1px solid rgba(204,0,0,0.4);
+      color: var(--red);
+      font-family: var(--bebas);
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      letter-spacing: 0.12em;
+      margin-left: 8px;
+    }
+    .map-placeholder {
+      width: 100%;
+      height: 240px;
+      background: var(--black2);
+      border: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-top: 28px;
+      color: rgba(255,255,255,0.22);
+      font-family: var(--bebas);
+      letter-spacing: 0.2em;
+      font-size: 0.9rem;
+    }
+    .map-pin {
+      width: 40px;
+      height: 40px;
+      border: 2px solid var(--red);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .map-pin svg { fill: var(--red); }
+
+    /* ===========================
+       FOOTER
+    =========================== */
+    #footer {
+      background: var(--black);
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 72px 48px 52px;
+    }
+    .footer-inner {
+      max-width: 1140px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 32px;
+    }
+    .footer-logo {
+      font-family: var(--bebas);
+      font-size: 1.9rem;
+      letter-spacing: 0.1em;
+      color: var(--white);
+    }
+    .footer-logo em { font-style: normal; color: var(--red); }
+    .footer-nav {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+    }
+    .footer-nav a {
+      font-family: var(--bebas);
+      font-size: 1rem;
+      letter-spacing: 0.18em;
+      color: rgba(255,255,255,0.35);
+      transition: color 0.2s;
+    }
+    .footer-nav a:hover { color: var(--yellow); }
+    .footer-copy {
+      width: 100%;
+      text-align: center;
+      margin-top: 52px;
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.18);
+      letter-spacing: 0.1em;
+      font-family: var(--bebas);
+    }
+
+    /* ===========================
+       RESPONSIVE
+    =========================== */
+    @media (max-width: 1024px) {
+      .menu-grid { grid-template-columns: 1fr 1fr; }
+      .tilt-card.featured { grid-column: span 2; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      #site-header { padding: 16px 24px; }
+      #site-header.scrolled { padding: 10px 24px; }
+      .header-nav { display: none; }
+      section { padding: 80px 0; }
+      .section-inner { padding: 0 24px; }
+      .philosophy-grid { grid-template-columns: 1fr; }
+      .menu-grid { grid-template-columns: 1fr; }
+      .tilt-card.featured { grid-column: span 1; grid-template-columns: 1fr; }
+      .tilt-card.featured img { min-height: 240px; height: 240px; }
+      .tilt-card.featured .card-body { padding: 32px 28px; }
+      .info-grid { grid-template-columns: 1fr; }
+      .menu-intro { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .footer-inner { flex-direction: column; align-items: flex-start; }
+      .cta-headline { font-size: clamp(2.8rem, 12vw, 5rem); }
+    }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== CUSTOM CURSOR ===== -->
+  <div id="cursor"></div>
+  <div id="cursor-dot"></div>
+
+  <!-- ===== SPLASH ===== -->
+  <div id="splash">
+    <div class="splash-kanji">麺</div>
+    <div class="splash-bar"></div>
+    <div class="splash-sub">BUTA SOUL RAMEN</div>
+  </div>
+
+  <!-- ===== HEADER ===== -->
+  <header id="site-header">
+    <div class="header-logo">BUTA<em> SOUL</em></div>
+    <nav>
+      <ul class="header-nav">
+        <li><a href="#philosophy">こだわり</a></li>
+        <li><a href="#menu">メニュー</a></li>
+        <li><a href="#stats">実績</a></li>
+        <li><a href="#info">アクセス</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section id="hero">
+    <div class="hero-parallax-bg" id="parallaxBg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-scanlines"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">JIRO-STYLE RAMEN — TAKADANOBABA</p>
+      <h1 class="hero-title">
+        <span class="glitch" data-text="圧倒的">圧倒的</span><br>
+        <span class="accent">中毒性。</span>
+      </h1>
+      <p class="hero-sub">食べたら、もう<span class="shake-word">戻れない。</span></p>
+      <div class="hero-cta-wrap">
+        <a href="#menu" class="btn-pulse">メニューを見る</a>
+      </div>
+    </div>
+    <div class="hero-scroll-hint">
+      <div class="hero-scroll-line"></div>
+      SCROLL
+    </div>
+  </section>
+
+  <!-- ===== MARQUEE ===== -->
+  <div class="marquee-strip" aria-hidden="true">
+    <div class="marquee-track" id="marqueeTrack">
+      <span>NOODLES</span><span class="sep">×</span>
+      <span>GARLIC</span><span class="sep">×</span>
+      <span>PORK</span><span class="sep">×</span>
+      <span>FAT</span><span class="sep">×</span>
+      <span>YASAI</span><span class="sep">×</span>
+      <span>KARAME</span><span class="sep">×</span>
+      <span>ABURA</span><span class="sep">×</span>
+      <span>NINNIKU</span><span class="sep">×</span>
+      <!-- duplicate for seamless loop -->
+      <span>NOODLES</span><span class="sep">×</span>
+      <span>GARLIC</span><span class="sep">×</span>
+      <span>PORK</span><span class="sep">×</span>
+      <span>FAT</span><span class="sep">×</span>
+      <span>YASAI</span><span class="sep">×</span>
+      <span>KARAME</span><span class="sep">×</span>
+      <span>ABURA</span><span class="sep">×</span>
+      <span>NINNIKU</span><span class="sep">×</span>
+    </div>
+  </div>
+
+  <!-- ===== PHILOSOPHY ===== -->
+  <section id="philosophy">
+    <div class="section-inner">
+      <div class="philosophy-header slide-in-left">
+        <p class="section-label">Our Philosophy</p>
+        <h2 class="section-title">手を抜かない。<br>それだけだ。</h2>
+        <div class="section-rule"></div>
+      </div>
+      <div class="philosophy-grid">
+        <div class="philosophy-card slide-in-up">
+          <div class="philosophy-num">01</div>
+          <h3 class="philosophy-ttl">豚骨・鶏ガラ<br>8時間炊き出し</h3>
+          <p class="philosophy-txt">毎朝4時から仕込む骨太スープ。ゼラチン質が溶け出した白濁の一杯は、冷めても崩れない旨味の塊。妥協は一切ない。</p>
+        </div>
+        <div class="philosophy-card slide-in-up">
+          <div class="philosophy-num">02</div>
+          <h3 class="philosophy-ttl">国産小麦100%<br>極太自家製麺</h3>
+          <p class="philosophy-txt">加水率低めの硬い麺は、重いスープに負けない。ぶつ切りの食感と小麦の風味が、一口目から主張してくる。</p>
+        </div>
+        <div class="philosophy-card slide-in-up">
+          <div class="philosophy-num">03</div>
+          <h3 class="philosophy-ttl">ヤサイ・ニンニク<br>無料トッピング</h3>
+          <p class="philosophy-txt">もやし・キャベツはお代わり自由。ニンニク背脂も追加料金なし。腹いっぱい食えることが、このラーメンの正義だ。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== MENU ===== -->
+  <section id="menu">
+    <div class="section-inner">
+      <div class="menu-intro slide-in-left">
+        <div>
+          <p class="section-label">Menu</p>
+          <h2 class="section-title">選び方は<br>シンプルでいい。</h2>
+        </div>
+        <p class="menu-note">※ 価格は税込表示です</p>
+      </div>
+      <div class="menu-grid">
+        <!-- Featured -->
+        <div class="tilt-card featured slide-in-up" data-tilt>
+          <div class="card-shine"></div>
+          <img
+            src="https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=900&q=80"
+            alt="ブタソウル ラーメン"
+            loading="lazy"
+          />
+          <div class="card-body">
+            <span class="card-tag">SIGNATURE</span>
+            <h3 class="card-name">ブタソウル ラーメン</h3>
+            <p class="card-desc">豚骨鶏ガラ8時間炊きの白濁スープ。極太麺にドーム盛りのヤサイ、分厚いブタが2枚。<span class="shake-word">これが基準。</span></p>
+            <div class="card-price">¥850<small>（税込）</small></div>
+          </div>
+        </div>
+
+        <!-- Card 1 -->
+        <div class="tilt-card slide-in-up" data-tilt>
+          <div class="card-shine"></div>
+          <img
+            src="https://images.unsplash.com/photo-1591814468924-caf88d1232e1?w=700&q=80"
+            alt="ニンニクマシマシ"
+            loading="lazy"
+          />
+          <div class="card-body">
+            <span class="card-tag">POPULAR</span>
+            <h3 class="card-name">ニンニクマシマシ</h3>
+            <p class="card-desc">刻みニンニクと背脂を惜しみなく追加。パンチ倍増。翌日のことは、翌日考えろ。</p>
+            <div class="card-price">¥950<small>（税込）</small></div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="tilt-card slide-in-up" data-tilt>
+          <div class="card-shine"></div>
+          <img
+            src="https://images.unsplash.com/photo-1555126634-323283e090fa?w=700&q=80"
+            alt="つけ麺 BUTA"
+            loading="lazy"
+          />
+          <div class="card-body">
+            <span class="card-tag">NEW</span>
+            <h3 class="card-name">つけ麺 BUTA</h3>
+            <p class="card-desc">濃縮ダレに全力でくぐらせる。麺量300gでもノーマル価格。腹を空かせて来い。</p>
+            <div class="card-price">¥900<small>（税込）</small></div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="tilt-card slide-in-up" data-tilt>
+          <div class="card-shine"></div>
+          <img
+            src="https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=700&q=80"
+            alt="ヤサイマシ 全部のせ"
+            loading="lazy"
+          />
+          <div class="card-body">
+            <span class="card-tag">MEGA</span>
+            <h3 class="card-name">ヤサイマシ 全部のせ</h3>
+            <p class="card-desc">ヤサイ・ニンニク・背脂・カラメ全部増量。これを完食した者だけが、真の猛者だ。</p>
+            <div class="card-price">¥1,050<small>（税込）</small></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STATS（カウントアップ） ===== -->
+  <section id="stats">
+    <div class="section-inner">
+      <div class="stats-grid">
+        <div class="stat-item slide-in-up">
+          <span class="stat-num" data-target="2847">0</span>
+          <span class="stat-unit">杯</span>
+          <p class="stat-label">今月の完食数</p>
+        </div>
+        <div class="stat-item slide-in-up">
+          <span class="stat-num" data-target="12">0</span>
+          <span class="stat-unit">種</span>
+          <p class="stat-label">トッピング選択肢</p>
+        </div>
+        <div class="stat-item slide-in-up">
+          <span class="stat-num" data-target="8">0</span>
+          <span class="stat-unit">時間</span>
+          <p class="stat-label">スープ炊き出し時間</p>
+        </div>
+        <div class="stat-item slide-in-up">
+          <span class="stat-num" data-target="98">0</span>
+          <span class="stat-unit">%</span>
+          <p class="stat-label">リピーター満足度</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA ===== -->
+  <section id="cta-section">
+    <div class="section-inner">
+      <p class="cta-eyebrow slide-in-up">COME AND GET IT</p>
+      <h2 class="cta-headline slide-in-up">
+        今すぐ、<br><span class="line2">食いに来い。</span>
+      </h2>
+      <p class="cta-desc slide-in-up">高田馬場駅 徒歩3分。並んでも食う価値がある、その一杯がここにある。</p>
+      <div class="slide-in-up">
+        <a href="#info" class="btn-pulse">店舗情報を見る</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== INFO ===== -->
+  <section id="info">
+    <div class="section-inner">
+      <div class="slide-in-left">
+        <p class="section-label">Access & Hours</p>
+        <h2 class="section-title">来る前に<br>確認しておけ。</h2>
+        <div class="section-rule"></div>
+      </div>
+      <div class="info-grid">
+        <div class="info-block slide-in-left">
+          <p class="info-block-title">Store Info</p>
+          <table class="info-table">
+            <tr><th>店名</th><td>麺屋 BUTA SOUL</td></tr>
+            <tr><th>住所</th><td>東京都新宿区高田馬場2-14-5<br>BSOULビル 1F</td></tr>
+            <tr><th>電話</th><td>03-XXXX-XXXX</td></tr>
+            <tr><th>最寄駅</th><td>高田馬場駅 徒歩3分<br>（JR・東京メトロ東西線）</td></tr>
+            <tr><th>座席数</th><td>カウンター12席</td></tr>
+          </table>
+          <div class="map-placeholder">
+            <div class="map-pin">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+              </svg>
+            </div>
+            MAP
+          </div>
+        </div>
+        <div class="info-block slide-in-right">
+          <p class="info-block-title">Opening Hours</p>
+          <table class="info-table">
+            <tr><th>月〜金</th><td>11:00 – 15:00<br>17:00 – 22:00</td></tr>
+            <tr><th>土・日・祝</th><td>11:00 – 21:00<br>（通し営業）</td></tr>
+            <tr><th>定休日</th><td>毎週水曜日<span class="badge-closed">CLOSED</span></td></tr>
+            <tr><th>行列について</th><td>混雑時は外待ちあり。<br>整理券は配布なし。</td></tr>
+            <tr><th>支払い</th><td>現金・交通系IC<br>（カード不可）</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer id="footer">
+    <div class="footer-inner">
+      <div class="footer-logo">BUTA<em> SOUL</em></div>
+      <nav>
+        <ul class="footer-nav">
+          <li><a href="#philosophy">Philosophy</a></li>
+          <li><a href="#menu">Menu</a></li>
+          <li><a href="#stats">Records</a></li>
+          <li><a href="#info">Access</a></li>
+        </ul>
+      </nav>
+    </div>
+    <p class="footer-copy">&copy; 2026 麺屋 BUTA SOUL. All rights reserved.</p>
+  </footer>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script>
+    /* ----- SPLASH ----- */
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('splash').classList.add('hide');
+      }, 2200);
+    });
+
+    /* ----- CUSTOM CURSOR ----- */
+    const cursor    = document.getElementById('cursor');
+    const cursorDot = document.getElementById('cursor-dot');
+    let cx = 0, cy = 0;
+    let dx = 0, dy = 0;
+
+    document.addEventListener('mousemove', (e) => {
+      cx = e.clientX;
+      cy = e.clientY;
+      cursorDot.style.left = cx + 'px';
+      cursorDot.style.top  = cy + 'px';
+    });
+
+    // カーソルをスムーズに追従
+    function animateCursor() {
+      dx += (cx - dx) * 0.15;
+      dy += (cy - dy) * 0.15;
+      cursor.style.left = dx + 'px';
+      cursor.style.top  = dy + 'px';
+      requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+
+    /* ----- HEADER SCROLL ----- */
+    const header = document.getElementById('site-header');
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('scrolled', window.scrollY > 60);
+    }, { passive: true });
+
+    /* ----- PARALLAX HERO ----- */
+    const parallaxBg = document.getElementById('parallaxBg');
+    window.addEventListener('scroll', () => {
+      const offset = window.scrollY;
+      parallaxBg.style.transform = `translateY(${offset * 0.35}px)`;
+    }, { passive: true });
+
+    /* ----- SCROLL REVEAL ----- */
+    const revealEls = document.querySelectorAll('.slide-in-left, .slide-in-right, .slide-in-up');
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          // 兄弟要素にstaggerをつける
+          const siblings = entry.target.parentElement.querySelectorAll('.slide-in-left, .slide-in-right, .slide-in-up');
+          let delay = 0;
+          siblings.forEach((sib, idx) => {
+            if (sib === entry.target) delay = idx * 0.12;
+          });
+          setTimeout(() => {
+            entry.target.classList.add('visible');
+          }, delay * 1000);
+          revealObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    revealEls.forEach(el => revealObs.observe(el));
+
+    /* ----- COUNTUP ----- */
+    function countUp(el, target, duration = 2000) {
+      let start = null;
+      const step = (ts) => {
+        if (!start) start = ts;
+        const progress = Math.min((ts - start) / duration, 1);
+        // easeOutExpo
+        const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+        el.textContent = Math.floor(eased * target).toLocaleString();
+        if (progress < 1) requestAnimationFrame(step);
+        else el.textContent = target.toLocaleString();
+      };
+      requestAnimationFrame(step);
+    }
+
+    const statsSection = document.getElementById('stats');
+    let statsTriggered = false;
+    const statsObs = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !statsTriggered) {
+        statsTriggered = true;
+        document.querySelectorAll('.stat-num[data-target]').forEach((el, i) => {
+          const target = parseInt(el.dataset.target, 10);
+          setTimeout(() => countUp(el, target), i * 150);
+        });
+      }
+    }, { threshold: 0.3 });
+    statsObs.observe(statsSection);
+
+    /* ----- 3D TILT CARDS ----- */
+    document.querySelectorAll('[data-tilt]').forEach(card => {
+      const shine = card.querySelector('.card-shine');
+
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width;
+        const y = (e.clientY - rect.top) / rect.height;
+        const rotateX = (y - 0.5) * -16;
+        const rotateY = (x - 0.5) * 16;
+        card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.03,1.03,1.03)`;
+        if (shine) {
+          shine.style.setProperty('--mx', `${x * 100}%`);
+          shine.style.setProperty('--my', `${y * 100}%`);
+        }
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(800px) rotateX(0) rotateY(0) scale3d(1,1,1)';
+        card.style.transition = 'transform 0.5s ease, box-shadow 0.3s ease';
+        setTimeout(() => { card.style.transition = ''; }, 500);
+      });
+
+      card.addEventListener('mouseenter', () => {
+        card.style.transition = 'none';
+      });
+    });
+  </script>
+</body>
+</html>
